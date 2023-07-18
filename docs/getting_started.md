@@ -342,9 +342,9 @@ kind: ServiceAccount
 metadata:
   name: nginx-s3-gateway
   annotations:
-    eks.amazonaws.com/role-arn: "<role-arn>"
+    eks.amazonaws.com/role-arn: '<role-arn>'
     # See https://docs.aws.amazon.com/eks/latest/userguide/configure-sts-endpoint.html
-    eks.amazonaws.com/sts-regional-endpoints: "true"
+    eks.amazonaws.com/sts-regional-endpoints: 'true'
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -363,31 +363,31 @@ spec:
       serviceAccountName: nginx-s3-gateway
       containers:
         - name: nginx-s3-gateway
-          image: "ghcr.io/nginxinc/nginx-s3-gateway/nginx-oss-s3-gateway:latest-20220916"
+          image: 'ghcr.io/nginxinc/nginx-s3-gateway/nginx-oss-s3-gateway:latest-20220916'
           imagePullPolicy: IfNotPresent
           env:
             - name: S3_BUCKET_NAME
-              value: "<bucket>"
+              value: '<bucket>'
             - name: S3_SERVER
-              value: "s3.<aws region>.amazonaws.com"
+              value: 's3.<aws region>.amazonaws.com'
             - name: S3_SERVER_PROTO
-              value: "https"
+              value: 'https'
             - name: S3_SERVER_PORT
-              value: "443"
+              value: '443'
             - name: S3_STYLE
-              value: "virtual"
+              value: 'virtual'
             - name: S3_REGION
-              value: "<aws region>"
+              value: '<aws region>'
             - name: AWS_REGION
-              value: "<aws region>"
+              value: '<aws region>'
             - name: AWS_SIGS_VERSION
-              value: "4"
+              value: '4'
             - name: ALLOW_DIRECTORY_LIST
-              value: "false"
+              value: 'false'
             - name: PROVIDE_INDEX_PAGE
-              value: "false"
+              value: 'false'
             - name: JS_TRUSTED_CERT_PATH
-              value: "/etc/ssl/certs/Amazon_Root_CA_1.pem"
+              value: '/etc/ssl/certs/Amazon_Root_CA_1.pem'
 
           ports:
             - name: http

@@ -19,7 +19,7 @@
  * about signature generation will be logged.
  * @type {boolean}
  */
-const DEBUG = parseBoolean(process.env["DEBUG"]);
+const DEBUG = parseBoolean(process.env['DEBUG']);
 
 /**
  * Checks to see if all of the elements of the passed array are present as keys
@@ -47,16 +47,16 @@ function areAllEnvVarsSet(envVars) {
  * @returns {Array} a list of values
  */
 function parseArray(string) {
-  if (string == null || !string || string === ";") {
+  if (string == null || !string || string === ';') {
     return [];
   }
 
   // Exclude trailing delimiter
-  if (string.endsWith(";")) {
-    return string.substr(0, string.length - 1).split(";");
+  if (string.endsWith(';')) {
+    return string.substr(0, string.length - 1).split(';');
   }
 
-  return string.split(";");
+  return string.split(';');
 }
 
 /**
@@ -68,13 +68,13 @@ function parseArray(string) {
  */
 function parseBoolean(string) {
   switch (string) {
-    case "TRUE":
-    case "true":
-    case "True":
-    case "YES":
-    case "yes":
-    case "Yes":
-    case "1":
+    case 'TRUE':
+    case 'true':
+    case 'True':
+    case 'YES':
+    case 'yes':
+    case 'Yes':
+    case '1':
       return true;
     default:
       return false;
@@ -88,7 +88,7 @@ function parseBoolean(string) {
  * @param msg {string} message to log
  */
 function debug_log(r, msg) {
-  if (DEBUG && "log" in r) {
+  if (DEBUG && 'log' in r) {
     r.log(msg);
   }
 }
@@ -102,7 +102,7 @@ function debug_log(r, msg) {
  * @private
  */
 function padWithLeadingZeros(num, size) {
-  const s = "0" + num;
+  const s = '0' + num;
   return s.substr(s.length - size);
 }
 
@@ -121,13 +121,13 @@ function getAmzDatetime(timestamp, eightDigitDate) {
   const minutes = timestamp.getUTCMinutes();
   const seconds = timestamp.getUTCSeconds();
 
-  return "".concat(
+  return ''.concat(
     eightDigitDate,
-    "T",
+    'T',
     padWithLeadingZeros(hours, 2),
     padWithLeadingZeros(minutes, 2),
     padWithLeadingZeros(seconds, 2),
-    "Z",
+    'Z',
   );
 }
 
@@ -143,7 +143,7 @@ function getEightDigitDate(timestamp) {
   const month = timestamp.getUTCMonth() + 1;
   const day = timestamp.getUTCDate();
 
-  return "".concat(
+  return ''.concat(
     padWithLeadingZeros(year, 4),
     padWithLeadingZeros(month, 2),
     padWithLeadingZeros(day, 2),
@@ -160,7 +160,7 @@ function requireEnvVar(envVarName) {
   const isSet = envVarName in process.env;
 
   if (!isSet) {
-    throw "Required environment variable " + envVarName + " is missing";
+    throw 'Required environment variable ' + envVarName + ' is missing';
   }
 }
 

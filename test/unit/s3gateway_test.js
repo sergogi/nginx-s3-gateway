@@ -16,33 +16,33 @@
  *  limitations under the License.
  */
 
-import awscred from "include/awscredentials.js";
-import awssig4 from "include/awssig4.js";
-import s3gateway from "include/s3gateway.js";
+import awscred from 'include/awscredentials.js';
+import awssig4 from 'include/awssig4.js';
+import s3gateway from 'include/s3gateway.js';
 
 globalThis.ngx = {};
 
 var fakeRequest = {
-  remoteAddress: "172.17.0.1",
+  remoteAddress: '172.17.0.1',
   headersIn: {
-    Connection: "keep-alive",
-    "Accept-Encoding": "gzip, deflate",
-    "Accept-Language": "en-US,en;q=0.7,ja;q=0.3",
-    Host: "localhost:8999",
-    "User-Agent":
-      "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0",
-    DNT: "1",
-    "Cache-Control": "max-age=0",
+    Connection: 'keep-alive',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'en-US,en;q=0.7,ja;q=0.3',
+    Host: 'localhost:8999',
+    'User-Agent':
+      'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0',
+    DNT: '1',
+    'Cache-Control': 'max-age=0',
     Accept:
-      "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Upgrade-Insecure-Requests": "1",
+      'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Upgrade-Insecure-Requests': '1',
   },
-  uri: "/a/c/ramen.jpg",
-  method: "GET",
-  httpVersion: "1.1",
+  uri: '/a/c/ramen.jpg',
+  method: 'GET',
+  httpVersion: '1.1',
   headersOut: {},
   args: {
-    foo: "bar",
+    foo: 'bar',
   },
   status: 0,
 };
@@ -52,45 +52,45 @@ fakeRequest.log = function (msg) {
 };
 
 function testEncodeURIComponent() {
-  printHeader("testEncodeURIComponent");
+  printHeader('testEncodeURIComponent');
   function testPureAsciiAlphaNum() {
-    console.log("  ## testPureAsciiAlphaNum");
+    console.log('  ## testPureAsciiAlphaNum');
     let alphaNum =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let encoded = s3gateway._encodeURIComponent(alphaNum);
     if (alphaNum !== alphaNum) {
       throw (
-        "Incorrect encoding applied to string.\n" +
+        'Incorrect encoding applied to string.\n' +
         `Actual:   [${encoded}]\n` +
         `Expected: [${expected}]`
       );
     }
   }
   function testUnicodeText() {
-    console.log("  ## testUnicodeText");
-    let unicode = "これは　This is ASCII системы  חן ";
+    console.log('  ## testUnicodeText');
+    let unicode = 'これは　This is ASCII системы  חן ';
     let expected =
-      "%E3%81%93%E3%82%8C%E3%81%AF%E3%80%80This%20is%20ASCII%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%8B%20%20%D7%97%D7%9F%20";
+      '%E3%81%93%E3%82%8C%E3%81%AF%E3%80%80This%20is%20ASCII%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%8B%20%20%D7%97%D7%9F%20';
     let encoded = s3gateway._encodeURIComponent(unicode);
     if (expected !== encoded) {
       throw (
-        "Incorrect encoding applied to string.\n" +
+        'Incorrect encoding applied to string.\n' +
         `Actual:   [${encoded}]\n` +
         `Expected: [${expected}]`
       );
     }
   }
   function testDiceyCharactersInText() {
-    console.log("  ## testDiceyCharactersInText");
+    console.log('  ## testDiceyCharactersInText');
 
-    let diceyCharacters = "%@!*()=+$#^&|\\/";
+    let diceyCharacters = '%@!*()=+$#^&|\\/';
     for (let i = 0; i < diceyCharacters.length; i++) {
       let char = diceyCharacters[i];
       let encoded = s3gateway._encodeURIComponent(char);
       let expected = `%${char.charCodeAt(0).toString(16).toUpperCase()}`;
       if (encoded !== expected) {
         throw (
-          "Incorrect encoding applied to string.\n" +
+          'Incorrect encoding applied to string.\n' +
           `Actual:   [${encoded}]\n` +
           `Expected: [${expected}]`
         );
@@ -104,63 +104,63 @@ function testEncodeURIComponent() {
 }
 
 function testSplitCachedValues() {
-  printHeader("testSplitCachedValues");
-  var eightDigitDate = "20200811";
+  printHeader('testSplitCachedValues');
+  var eightDigitDate = '20200811';
   var kSigningHash =
     '{"type":"Buffer","data":[164,135,1,191,232,3,16,62,137,5,31,85,175,34,151,221,118,120,59,188,235,94,180,22,218,183,30,14,173,203,196,246]}';
-  var cached = eightDigitDate + ":" + kSigningHash;
+  var cached = eightDigitDate + ':' + kSigningHash;
   var fields = awssig4._splitCachedValues(cached);
 
   if (fields.length !== 2) {
     throw (
-      "Unexpected array length returned.\n" +
-      "Actual:   [" +
+      'Unexpected array length returned.\n' +
+      'Actual:   [' +
       fields.length +
-      "]\n" +
-      "Expected: [2]"
+      ']\n' +
+      'Expected: [2]'
     );
   }
 
   if (fields[0] !== eightDigitDate) {
     throw (
-      "Eight digit date field not extracted correctly.\n" +
-      "Actual:   [" +
+      'Eight digit date field not extracted correctly.\n' +
+      'Actual:   [' +
       fields[0] +
-      "]\n" +
-      "Expected: [" +
+      ']\n' +
+      'Expected: [' +
       eightDigitDate +
-      "]"
+      ']'
     );
   }
 
   if (fields[1] !== kSigningHash) {
     throw (
-      "kSigningHash field not extracted correctly.\n" +
-      "Actual:   [" +
+      'kSigningHash field not extracted correctly.\n' +
+      'Actual:   [' +
       fields[1] +
-      "]\n" +
-      "Expected: [" +
+      ']\n' +
+      'Expected: [' +
       kSigningHash +
-      "]"
+      ']'
     );
   }
 }
 
 function testEditHeaders() {
-  printHeader("testEditHeaders");
+  printHeader('testEditHeaders');
 
   const r = {
     headersOut: {
-      "Accept-Ranges": "bytes",
-      "Content-Length": 42,
-      "Content-Security-Policy": "block-all-mixed-content",
-      "Content-Type": "text/plain",
-      "X-Amz-Bucket-Region": "us-east-1",
-      "X-Amz-Request-Id": "166539E18A46500A",
-      "X-Xss-Protection": "1; mode=block",
+      'Accept-Ranges': 'bytes',
+      'Content-Length': 42,
+      'Content-Security-Policy': 'block-all-mixed-content',
+      'Content-Type': 'text/plain',
+      'X-Amz-Bucket-Region': 'us-east-1',
+      'X-Amz-Request-Id': '166539E18A46500A',
+      'X-Xss-Protection': '1; mode=block',
     },
     variables: {
-      uri_path: "/a/c/ramen.jpg",
+      uri_path: '/a/c/ramen.jpg',
     },
   };
 
@@ -171,26 +171,26 @@ function testEditHeaders() {
   s3gateway.editHeaders(r);
 
   for (const key in r.headersOut) {
-    if (key.toLowerCase().indexOf("x-amz", 0) >= 0) {
-      throw "x-amz header not stripped from headers correctly";
+    if (key.toLowerCase().indexOf('x-amz', 0) >= 0) {
+      throw 'x-amz header not stripped from headers correctly';
     }
   }
 }
 
 function testEditHeadersHeadDirectory() {
-  printHeader("testEditHeadersHeadDirectory");
+  printHeader('testEditHeadersHeadDirectory');
   let r = {
-    method: "HEAD",
+    method: 'HEAD',
     headersOut: {
-      "Content-Security-Policy": "block-all-mixed-content",
-      "Content-Type": "application/xml",
-      Server: "AmazonS3",
-      "X-Amz-Bucket-Region": "us-east-1",
-      "X-Amz-Request-Id": "166539E18A46500A",
-      "X-Xss-Protection": "1; mode=block",
+      'Content-Security-Policy': 'block-all-mixed-content',
+      'Content-Type': 'application/xml',
+      Server: 'AmazonS3',
+      'X-Amz-Bucket-Region': 'us-east-1',
+      'X-Amz-Request-Id': '166539E18A46500A',
+      'X-Xss-Protection': '1; mode=block',
     },
     variables: {
-      uri_path: "/a/c/",
+      uri_path: '/a/c/',
     },
   };
 
@@ -201,165 +201,165 @@ function testEditHeadersHeadDirectory() {
   s3gateway.editHeaders(r);
 
   if (r.headersOut.length > 0) {
-    throw "all headers were not stripped from request";
+    throw 'all headers were not stripped from request';
   }
 }
 
 function testIsHeaderToBeStripped() {
-  printHeader("testIsHeaderToBeStripped");
+  printHeader('testIsHeaderToBeStripped');
   // if (s3gateway._isHeaderToBeStripped('cache-control', [])) {
   //     throw "valid header should not be stripped";
   // }
   // if (!s3gateway._isHeaderToBeStripped('x-amz-request-id', [])) {
   //     throw "x-amz header should always be stripped";
   // }
-  if (!s3gateway._isHeaderToBeStripped("x-goog-storage-class", ["x-goog"])) {
-    throw "x-goog-storage-class header should be stripped";
+  if (!s3gateway._isHeaderToBeStripped('x-goog-storage-class', ['x-goog'])) {
+    throw 'x-goog-storage-class header should be stripped';
   }
 }
 
 function testEscapeURIPathPreservesDoubleSlashes() {
-  printHeader("testEscapeURIPathPreservesDoubleSlashes");
-  var doubleSlashed = "/testbucketer2/foo3//bar3/somedir/license";
+  printHeader('testEscapeURIPathPreservesDoubleSlashes');
+  var doubleSlashed = '/testbucketer2/foo3//bar3/somedir/license';
   var actual = s3gateway._escapeURIPath(doubleSlashed);
-  var expected = "/testbucketer2/foo3//bar3/somedir/license";
+  var expected = '/testbucketer2/foo3//bar3/somedir/license';
 
   if (actual !== expected) {
-    throw "URI Path escaping is stripping slashes";
+    throw 'URI Path escaping is stripping slashes';
   }
 }
 
 async function testEcsCredentialRetrieval() {
-  printHeader("testEcsCredentialRetrieval");
-  delete process.env["AWS_ACCESS_KEY_ID"];
-  process.env["AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"] = "/example";
+  printHeader('testEcsCredentialRetrieval');
+  delete process.env['AWS_ACCESS_KEY_ID'];
+  process.env['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI'] = '/example';
   globalThis.ngx.fetch = function (url) {
-    console.log("  fetching mock credentials");
+    console.log('  fetching mock credentials');
     globalThis.recordedUrl = url;
 
     return Promise.resolve({
       ok: true,
       json: function () {
         return Promise.resolve({
-          AccessKeyId: "AN_ACCESS_KEY_ID",
-          Expiration: "2017-05-17T15:09:54Z",
-          RoleArn: "TASK_ROLE_ARN",
-          SecretAccessKey: "A_SECRET_ACCESS_KEY",
-          Token: "A_SECURITY_TOKEN",
+          AccessKeyId: 'AN_ACCESS_KEY_ID',
+          Expiration: '2017-05-17T15:09:54Z',
+          RoleArn: 'TASK_ROLE_ARN',
+          SecretAccessKey: 'A_SECRET_ACCESS_KEY',
+          Token: 'A_SECURITY_TOKEN',
         });
       },
     });
   };
   var r = {
     headersOut: {
-      "Accept-Ranges": "bytes",
-      "Content-Length": 42,
-      "Content-Security-Policy": "block-all-mixed-content",
-      "Content-Type": "text/plain",
-      "X-Amz-Bucket-Region": "us-east-1",
-      "X-Amz-Request-Id": "166539E18A46500A",
-      "X-Xss-Protection": "1; mode=block",
+      'Accept-Ranges': 'bytes',
+      'Content-Length': 42,
+      'Content-Security-Policy': 'block-all-mixed-content',
+      'Content-Type': 'text/plain',
+      'X-Amz-Bucket-Region': 'us-east-1',
+      'X-Amz-Request-Id': '166539E18A46500A',
+      'X-Xss-Protection': '1; mode=block',
     },
     log: function (msg) {
       console.log(msg);
     },
     return: function (code) {
       if (code !== 200) {
-        throw "Expected 200 status code, got: " + code;
+        throw 'Expected 200 status code, got: ' + code;
       }
     },
   };
 
   await awscred.fetchCredentials(r);
 
-  if (globalThis.recordedUrl !== "http://169.254.170.2/example") {
+  if (globalThis.recordedUrl !== 'http://169.254.170.2/example') {
     throw `No or wrong ECS credentials fetch URL recorded: ${globalThis.recordedUrl}`;
   }
 }
 
 async function testEc2CredentialRetrieval() {
-  printHeader("testEc2CredentialRetrieval");
-  delete process.env["AWS_ACCESS_KEY_ID"];
-  delete process.env["AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"];
+  printHeader('testEc2CredentialRetrieval');
+  delete process.env['AWS_ACCESS_KEY_ID'];
+  delete process.env['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI'];
   globalThis.ngx.fetch = function (url, options) {
     if (
-      url === "http://169.254.169.254/latest/api/token" &&
+      url === 'http://169.254.169.254/latest/api/token' &&
       options &&
-      options.method === "PUT"
+      options.method === 'PUT'
     ) {
       return Promise.resolve({
         ok: true,
         text: function () {
-          return Promise.resolve("A_TOKEN");
+          return Promise.resolve('A_TOKEN');
         },
       });
     } else if (
       url ===
-      "http://169.254.169.254/latest/meta-data/iam/security-credentials/"
+      'http://169.254.169.254/latest/meta-data/iam/security-credentials/'
     ) {
       if (
         options &&
         options.headers &&
-        options.headers["x-aws-ec2-metadata-token"] === "A_TOKEN"
+        options.headers['x-aws-ec2-metadata-token'] === 'A_TOKEN'
       ) {
         return Promise.resolve({
           ok: true,
           text: function () {
-            return Promise.resolve("A_ROLE_NAME");
+            return Promise.resolve('A_ROLE_NAME');
           },
         });
       } else {
         throw (
-          "Invalid token passed: " + options.headers["x-aws-ec2-metadata-token"]
+          'Invalid token passed: ' + options.headers['x-aws-ec2-metadata-token']
         );
       }
     } else if (
       url ===
-      "http://169.254.169.254/latest/meta-data/iam/security-credentials/A_ROLE_NAME"
+      'http://169.254.169.254/latest/meta-data/iam/security-credentials/A_ROLE_NAME'
     ) {
       if (
         options &&
         options.headers &&
-        options.headers["x-aws-ec2-metadata-token"] === "A_TOKEN"
+        options.headers['x-aws-ec2-metadata-token'] === 'A_TOKEN'
       ) {
         return Promise.resolve({
           ok: true,
           json: function () {
             globalThis.credentialsIssued = true;
             return Promise.resolve({
-              AccessKeyId: "AN_ACCESS_KEY_ID",
-              Expiration: "2017-05-17T15:09:54Z",
-              RoleArn: "TASK_ROLE_ARN",
-              SecretAccessKey: "A_SECRET_ACCESS_KEY",
-              Token: "A_SECURITY_TOKEN",
+              AccessKeyId: 'AN_ACCESS_KEY_ID',
+              Expiration: '2017-05-17T15:09:54Z',
+              RoleArn: 'TASK_ROLE_ARN',
+              SecretAccessKey: 'A_SECRET_ACCESS_KEY',
+              Token: 'A_SECURITY_TOKEN',
             });
           },
         });
       } else {
         throw (
-          "Invalid token passed: " + options.headers["x-aws-ec2-metadata-token"]
+          'Invalid token passed: ' + options.headers['x-aws-ec2-metadata-token']
         );
       }
     } else {
-      throw "Invalid request URL: " + url;
+      throw 'Invalid request URL: ' + url;
     }
   };
   var r = {
     headersOut: {
-      "Accept-Ranges": "bytes",
-      "Content-Length": 42,
-      "Content-Security-Policy": "block-all-mixed-content",
-      "Content-Type": "text/plain",
-      "X-Amz-Bucket-Region": "us-east-1",
-      "X-Amz-Request-Id": "166539E18A46500A",
-      "X-Xss-Protection": "1; mode=block",
+      'Accept-Ranges': 'bytes',
+      'Content-Length': 42,
+      'Content-Security-Policy': 'block-all-mixed-content',
+      'Content-Type': 'text/plain',
+      'X-Amz-Bucket-Region': 'us-east-1',
+      'X-Amz-Request-Id': '166539E18A46500A',
+      'X-Xss-Protection': '1; mode=block',
     },
     log: function (msg) {
       console.log(msg);
     },
     return: function (code) {
       if (code !== 200) {
-        throw "Expected 200 status code, got: " + code;
+        throw 'Expected 200 status code, got: ' + code;
       }
     },
   };
@@ -367,7 +367,7 @@ async function testEc2CredentialRetrieval() {
   await awscred.fetchCredentials(r);
 
   if (!globalThis.credentialsIssued) {
-    throw "Did not reach the point where EC2 credentials were issues.";
+    throw 'Did not reach the point where EC2 credentials were issues.';
   }
 }
 
@@ -387,4 +387,4 @@ async function test() {
 }
 
 test();
-console.log("Finished unit tests for s3gateway.js");
+console.log('Finished unit tests for s3gateway.js');

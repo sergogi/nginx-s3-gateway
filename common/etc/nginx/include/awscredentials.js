@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-import utils from "./utils.js";
+import utils from './utils.js';
 
-const fs = require("fs");
+const fs = require('fs');
 
 /**
  * The current moment as a timestamp. This timestamp will be used across
@@ -30,15 +30,15 @@ const NOW = new Date();
  * https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html for more details.
  * @type {string}
  */
-const ECS_CREDENTIAL_BASE_URI = "http://169.254.170.2";
+const ECS_CREDENTIAL_BASE_URI = 'http://169.254.170.2';
 
 /**
  * @type {string}
  */
-const EC2_IMDS_TOKEN_ENDPOINT = "http://169.254.169.254/latest/api/token";
+const EC2_IMDS_TOKEN_ENDPOINT = 'http://169.254.169.254/latest/api/token';
 
 const EC2_IMDS_SECURITY_CREDENTIALS_ENDPOINT =
-  "http://169.254.169.254/latest/meta-data/iam/security-credentials/";
+  'http://169.254.169.254/latest/meta-data/iam/security-credentials/';
 
 /**
  * Offset to the expiration of credentials, when they should be considered expired and refreshed. The maximum
@@ -64,7 +64,7 @@ function sessionToken(r) {
   if (credentials.sessionToken) {
     return credentials.sessionToken;
   }
-  return "";
+  return '';
 }
 
 /**
@@ -75,24 +75,24 @@ function sessionToken(r) {
  */
 function readCredentials(r) {
   if (
-    "AWS_ACCESS_KEY_ID" in process.env &&
-    "AWS_SECRET_ACCESS_KEY" in process.env
+    'AWS_ACCESS_KEY_ID' in process.env &&
+    'AWS_SECRET_ACCESS_KEY' in process.env
   ) {
     let sessionToken =
-      "AWS_SESSION_TOKEN" in process.env
-        ? process.env["AWS_SESSION_TOKEN"]
+      'AWS_SESSION_TOKEN' in process.env
+        ? process.env['AWS_SESSION_TOKEN']
         : null;
     if (sessionToken !== null && sessionToken.length === 0) {
       sessionToken = null;
     }
     return {
-      accessKeyId: process.env["AWS_ACCESS_KEY_ID"],
-      secretAccessKey: process.env["AWS_SECRET_ACCESS_KEY"],
+      accessKeyId: process.env['AWS_ACCESS_KEY_ID'],
+      secretAccessKey: process.env['AWS_SECRET_ACCESS_KEY'],
       sessionToken: sessionToken,
       expiration: null,
     };
   }
-  if ("variables" in r && r.variables.cache_instance_credentials_enabled == 1) {
+  if ('variables' in r && r.variables.cache_instance_credentials_enabled == 1) {
     return _readCredentialsFromKeyValStore(r);
   } else {
     return _readCredentialsFromFile();
@@ -142,7 +142,7 @@ function _readCredentialsFromFile() {
     /* Do not throw an exception in the case of when the
            credentials file path is invalid in order to signal to
            the caller that such a file has not been created yet. */
-    if (e.code === "ENOENT") {
+    if (e.code === 'ENOENT') {
       return undefined;
     }
     throw e;
@@ -156,14 +156,14 @@ function _readCredentialsFromFile() {
  * @private
  */
 function _credentialsTempFile() {
-  if (process.env["AWS_CREDENTIALS_TEMP_FILE"]) {
-    return process.env["AWS_CREDENTIALS_TEMP_FILE"];
+  if (process.env['AWS_CREDENTIALS_TEMP_FILE']) {
+    return process.env['AWS_CREDENTIALS_TEMP_FILE'];
   }
-  if (process.env["TMPDIR"]) {
-    return `${process.env["TMPDIR"]}/credentials.json`;
+  if (process.env['TMPDIR']) {
+    return `${process.env['TMPDIR']}/credentials.json`;
   }
 
-  return "/tmp/credentials.json";
+  return '/tmp/credentials.json';
 }
 
 /**
@@ -176,8 +176,8 @@ function writeCredentials(r, credentials) {
   /* Do not bother writing credentials if we are running in a mode where we
        do not need instance credentials. */
   if (
-    process.env["AWS_ACCESS_KEY_ID"] &&
-    process.env["AWS_SECRET_ACCESS_KEY"]
+    process.env['AWS_ACCESS_KEY_ID'] &&
+    process.env['AWS_SECRET_ACCESS_KEY']
   ) {
     return;
   }
@@ -186,7 +186,7 @@ function writeCredentials(r, credentials) {
     throw `Cannot write invalid credentials: ${JSON.stringify(credentials)}`;
   }
 
-  if ("variables" in r && r.variables.cache_instance_credentials_enabled == 1) {
+  if ('variables' in r && r.variables.cache_instance_credentials_enabled == 1) {
     _writeCredentialsToKeyValStore(r, credentials);
   } else {
     _writeCredentialsToFile(credentials);
@@ -237,7 +237,7 @@ function _writeCredentialsToFile(credentials) {
 async function fetchCredentials(r) {
   /* If we are not using an AWS instance profile to set our credentials we
        exit quickly and don't write a credentials file. */
-  if (utils.areAllEnvVarsSet(["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"])) {
+  if (utils.areAllEnvVarsSet(['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'])) {
     r.return(200);
     return;
   }
@@ -256,7 +256,7 @@ async function fetchCredentials(r) {
     // If AWS returns a Unix timestamp it will be in seconds, but in Date constructor we should provide timestamp in milliseconds
     // In some situations (including EC2 and Fargate) current.expiration will be an RFC 3339 string - see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html#instance-metadata-security-credentials
     const expireAt =
-      typeof current.expiration == "number"
+      typeof current.expiration == 'number'
         ? current.expiration * 1000
         : current.expiration;
     const exp = new Date(expireAt).getTime() - maxValidityOffsetMs;
@@ -270,30 +270,30 @@ async function fetchCredentials(r) {
 
   utils.debug_log(
     r,
-    "Cached credentials are expired or not present, requesting new ones",
+    'Cached credentials are expired or not present, requesting new ones',
   );
 
-  if (utils.areAllEnvVarsSet("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI")) {
+  if (utils.areAllEnvVarsSet('AWS_CONTAINER_CREDENTIALS_RELATIVE_URI')) {
     const relative_uri =
-      process.env["AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"] || "";
+      process.env['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI'] || '';
     const uri = ECS_CREDENTIAL_BASE_URI + relative_uri;
     try {
       credentials = await _fetchEcsRoleCredentials(uri);
     } catch (e) {
       utils.debug_log(
         r,
-        "Could not load ECS task role credentials: " + JSON.stringify(e),
+        'Could not load ECS task role credentials: ' + JSON.stringify(e),
       );
       r.return(500);
       return;
     }
-  } else if (utils.areAllEnvVarsSet("AWS_WEB_IDENTITY_TOKEN_FILE")) {
+  } else if (utils.areAllEnvVarsSet('AWS_WEB_IDENTITY_TOKEN_FILE')) {
     try {
       credentials = await _fetchWebIdentityCredentials(r);
     } catch (e) {
       utils.debug_log(
         r,
-        "Could not assume role using web identity: " + JSON.stringify(e),
+        'Could not assume role using web identity: ' + JSON.stringify(e),
       );
       r.return(500);
       return;
@@ -304,7 +304,7 @@ async function fetchCredentials(r) {
     } catch (e) {
       utils.debug_log(
         r,
-        "Could not load EC2 task role credentials: " + JSON.stringify(e),
+        'Could not load EC2 task role credentials: ' + JSON.stringify(e),
       );
       r.return(500);
       return;
@@ -331,7 +331,7 @@ async function fetchCredentials(r) {
 async function _fetchEcsRoleCredentials(credentialsUri) {
   const resp = await ngx.fetch(credentialsUri);
   if (!resp.ok) {
-    throw "Credentials endpoint response was not ok.";
+    throw 'Credentials endpoint response was not ok.';
   }
   const creds = await resp.json();
 
@@ -353,14 +353,14 @@ async function _fetchEcsRoleCredentials(credentialsUri) {
 async function _fetchEC2RoleCredentials() {
   const tokenResp = await ngx.fetch(EC2_IMDS_TOKEN_ENDPOINT, {
     headers: {
-      "x-aws-ec2-metadata-token-ttl-seconds": "21600",
+      'x-aws-ec2-metadata-token-ttl-seconds': '21600',
     },
-    method: "PUT",
+    method: 'PUT',
   });
   const token = await tokenResp.text();
   let resp = await ngx.fetch(EC2_IMDS_SECURITY_CREDENTIALS_ENDPOINT, {
     headers: {
-      "x-aws-ec2-metadata-token": token,
+      'x-aws-ec2-metadata-token': token,
     },
   });
   /* This _might_ get multiple possible roles in other scenarios, however,
@@ -368,12 +368,12 @@ async function _fetchEC2RoleCredentials() {
        the whole output, even given IMDS _might_ (?) be able to return multiple
        roles. */
   const credName = await resp.text();
-  if (credName === "") {
-    throw "No credentials available for EC2 instance";
+  if (credName === '') {
+    throw 'No credentials available for EC2 instance';
   }
   resp = await ngx.fetch(EC2_IMDS_SECURITY_CREDENTIALS_ENDPOINT + credName, {
     headers: {
-      "x-aws-ec2-metadata-token": token,
+      'x-aws-ec2-metadata-token': token,
     },
   });
   const creds = await resp.json();
@@ -394,10 +394,10 @@ async function _fetchEC2RoleCredentials() {
  * @private
  */
 async function _fetchWebIdentityCredentials(r) {
-  const arn = process.env["AWS_ROLE_ARN"];
-  const name = process.env["AWS_ROLE_SESSION_NAME"];
+  const arn = process.env['AWS_ROLE_ARN'];
+  const name = process.env['AWS_ROLE_SESSION_NAME'];
 
-  let sts_endpoint = process.env["STS_ENDPOINT"];
+  let sts_endpoint = process.env['STS_ENDPOINT'];
   if (!sts_endpoint) {
     /* On EKS, the ServiceAccount can be annotated with
            'eks.amazonaws.com/sts-regional-endpoints' to control
@@ -407,31 +407,31 @@ async function _fetchWebIdentityCredentials(r) {
            the variable to.
            See: https://docs.aws.amazon.com/sdkref/latest/guide/feature-sts-regionalized-endpoints.html
            See: https://docs.aws.amazon.com/eks/latest/userguide/configure-sts-endpoint.html */
-    const sts_regional = process.env["AWS_STS_REGIONAL_ENDPOINTS"] || "global";
-    if (sts_regional === "regional") {
+    const sts_regional = process.env['AWS_STS_REGIONAL_ENDPOINTS'] || 'global';
+    if (sts_regional === 'regional') {
       /* STS regional endpoints can be derived from the region's name.
                See: https://docs.aws.amazon.com/general/latest/gr/sts.html */
-      const region = process.env["AWS_REGION"];
+      const region = process.env['AWS_REGION'];
       if (region) {
         sts_endpoint = `https://sts.${region}.amazonaws.com`;
       } else {
-        throw "Missing required AWS_REGION env variable";
+        throw 'Missing required AWS_REGION env variable';
       }
     } else {
       // This is the default global endpoint
-      sts_endpoint = "https://sts.amazonaws.com";
+      sts_endpoint = 'https://sts.amazonaws.com';
     }
   }
 
-  const token = fs.readFileSync(process.env["AWS_WEB_IDENTITY_TOKEN_FILE"]);
+  const token = fs.readFileSync(process.env['AWS_WEB_IDENTITY_TOKEN_FILE']);
 
   const params = `Version=2011-06-15&Action=AssumeRoleWithWebIdentity&RoleArn=${arn}&RoleSessionName=${name}&WebIdentityToken=${token}`;
 
-  const response = await ngx.fetch(sts_endpoint + "?" + params, {
+  const response = await ngx.fetch(sts_endpoint + '?' + params, {
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-    method: "GET",
+    method: 'GET',
   });
 
   const resp = await response.json();

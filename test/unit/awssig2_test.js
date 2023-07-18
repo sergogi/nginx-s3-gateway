@@ -16,16 +16,16 @@
  *  limitations under the License.
  */
 
-import awssig2 from "include/awssig2.js";
+import awssig2 from 'include/awssig2.js';
 
 function _runSignatureV2(r) {
   r.log = function (msg) {
     console.log(msg);
   };
-  const timestamp = new Date("2020-08-11T19:42:14Z");
-  const bucket = "test-bucket-1";
-  const accessKey = "test-access-key-1";
-  const secret = "pvgoBEA1z7zZKqN9RoKVksKh31AtNou+pspn+iyb";
+  const timestamp = new Date('2020-08-11T19:42:14Z');
+  const bucket = 'test-bucket-1';
+  const accessKey = 'test-access-key-1';
+  const secret = 'pvgoBEA1z7zZKqN9RoKVksKh31AtNou+pspn+iyb';
   const creds = {
     accessKeyId: accessKey,
     secretAccessKey: secret,
@@ -33,51 +33,51 @@ function _runSignatureV2(r) {
   };
 
   const httpDate = timestamp.toUTCString();
-  const expected = "AWS test-access-key-1:VviSS4cFhUC6eoB4CYqtRawzDrc=";
-  const req_uri = "/".concat(bucket, r.variables.uri_path);
+  const expected = 'AWS test-access-key-1:VviSS4cFhUC6eoB4CYqtRawzDrc=';
+  const req_uri = '/'.concat(bucket, r.variables.uri_path);
   let signature = awssig2.signatureV2(r, req_uri, httpDate, creds);
 
   if (signature !== expected) {
     throw (
-      "V2 signature hash was not created correctly.\n" +
-      "Actual:   [" +
+      'V2 signature hash was not created correctly.\n' +
+      'Actual:   [' +
       signature +
-      "]\n" +
-      "Expected: [" +
+      ']\n' +
+      'Expected: [' +
       expected +
-      "]"
+      ']'
     );
   }
 }
 
 function testSignatureV2() {
-  printHeader("testSignatureV2");
+  printHeader('testSignatureV2');
   // Note: since this is a read-only gateway, host, query parameters and all
   // client headers will be ignored.
   var r = {
-    remoteAddress: "172.17.0.1",
+    remoteAddress: '172.17.0.1',
     headersIn: {
-      Connection: "keep-alive",
-      "Accept-Encoding": "gzip, deflate",
-      "Accept-Language": "en-US,en;q=0.7,ja;q=0.3",
-      Host: "localhost:8999",
-      "User-Agent":
-        "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0",
-      DNT: "1",
-      "Cache-Control": "max-age=0",
+      Connection: 'keep-alive',
+      'Accept-Encoding': 'gzip, deflate',
+      'Accept-Language': 'en-US,en;q=0.7,ja;q=0.3',
+      Host: 'localhost:8999',
+      'User-Agent':
+        'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0',
+      DNT: '1',
+      'Cache-Control': 'max-age=0',
       Accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-      "Upgrade-Insecure-Requests": "1",
+        'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Upgrade-Insecure-Requests': '1',
     },
-    uri: "/a/c/ramen.jpg",
-    method: "GET",
-    httpVersion: "1.1",
+    uri: '/a/c/ramen.jpg',
+    method: 'GET',
+    httpVersion: '1.1',
     headersOut: {},
     args: {
-      foo: "bar",
+      foo: 'bar',
     },
     variables: {
-      uri_path: "/a/c/ramen.jpg",
+      uri_path: '/a/c/ramen.jpg',
     },
     status: 0,
   };
@@ -94,4 +94,4 @@ function printHeader(testName) {
 }
 
 test();
-console.log("Finished unit tests for awssig2.js");
+console.log('Finished unit tests for awssig2.js');

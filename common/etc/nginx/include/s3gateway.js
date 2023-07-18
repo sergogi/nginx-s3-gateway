@@ -14,51 +14,51 @@
  *  limitations under the License.
  */
 
-import awscred from "./awscredentials.js";
-import awssig2 from "./awssig2.js";
-import awssig4 from "./awssig4.js";
-import utils from "./utils.js";
+import awscred from './awscredentials.js';
+import awssig2 from './awssig2.js';
+import awssig4 from './awssig4.js';
+import utils from './utils.js';
 
-_requireEnvVars("S3_BUCKET_NAME");
-_requireEnvVars("S3_SERVER");
-_requireEnvVars("S3_SERVER_PROTO");
-_requireEnvVars("S3_SERVER_PORT");
-_requireEnvVars("S3_REGION");
-_requireEnvVars("AWS_SIGS_VERSION");
-_requireEnvVars("S3_STYLE");
+_requireEnvVars('S3_BUCKET_NAME');
+_requireEnvVars('S3_SERVER');
+_requireEnvVars('S3_SERVER_PROTO');
+_requireEnvVars('S3_SERVER_PORT');
+_requireEnvVars('S3_REGION');
+_requireEnvVars('AWS_SIGS_VERSION');
+_requireEnvVars('S3_STYLE');
 
 /**
  * Flag indicating debug mode operation. If true, additional information
  * about signature generation will be logged.
  * @type {boolean}
  */
-const ALLOW_LISTING = utils.parseBoolean(process.env["ALLOW_DIRECTORY_LIST"]);
+const ALLOW_LISTING = utils.parseBoolean(process.env['ALLOW_DIRECTORY_LIST']);
 const PROVIDE_INDEX_PAGE = utils.parseBoolean(
-  process.env["PROVIDE_INDEX_PAGE"],
+  process.env['PROVIDE_INDEX_PAGE'],
 );
 const APPEND_SLASH = utils.parseBoolean(
-  process.env["APPEND_SLASH_FOR_POSSIBLE_DIRECTORY"],
+  process.env['APPEND_SLASH_FOR_POSSIBLE_DIRECTORY'],
 );
 const FOUR_O_FOUR_ON_EMPTY_BUCKET = utils.parseBoolean(
-  process.env["FOUR_O_FOUR_ON_EMPTY_BUCKET"],
+  process.env['FOUR_O_FOUR_ON_EMPTY_BUCKET'],
 );
-const S3_STYLE = process.env["S3_STYLE"];
+const S3_STYLE = process.env['S3_STYLE'];
 
 const ADDITIONAL_HEADER_PREFIXES_TO_STRIP = utils.parseArray(
-  process.env["HEADER_PREFIXES_TO_STRIP"],
+  process.env['HEADER_PREFIXES_TO_STRIP'],
 );
 
 /**
  * Default filename for index pages to be read off of the backing object store.
  * @type {string}
  */
-const INDEX_PAGE = "index.html";
+const INDEX_PAGE = 'index.html';
 
 /**
  * Constant defining the service requests are being signed for.
  * @type {string}
  */
-const SERVICE = "s3";
+const SERVICE = 's3';
 
 /**
  * Transform the headers returned from S3 such that there isn't information
@@ -68,12 +68,12 @@ const SERVICE = "s3";
 function editHeaders(r) {
   const isDirectoryHeadRequest =
     ALLOW_LISTING &&
-    r.method === "HEAD" &&
+    r.method === 'HEAD' &&
     _isDirectory(decodeURIComponent(r.variables.uri_path));
 
   /* Strips all x-amz- headers from the output HTTP headers so that the
    * requesters to the gateway will not know you are proxying S3. */
-  if ("headersOut" in r) {
+  if ('headersOut' in r) {
     for (const key in r.headersOut) {
       /* We delete all headers when it is a directory head request because
        * none of the information is relevant for passing on via a gateway. */
@@ -94,7 +94,7 @@ function editHeaders(r) {
      * for the XSL stylesheet from HTML to something else, you will
      * want to change the content type below. */
     if (isDirectoryHeadRequest) {
-      r.headersOut["Content-Type"] = "text/html; charset=utf-8";
+      r.headersOut['Content-Type'] = 'text/html; charset=utf-8';
     }
   }
 }
@@ -107,7 +107,7 @@ function editHeaders(r) {
  * @returns {boolean} true if header should be removed
  */
 function _isHeaderToBeStripped(headerName, additionalHeadersToStrip) {
-  if (headerName.indexOf("x-amz-", 0) >= 0) {
+  if (headerName.indexOf('x-amz-', 0) >= 0) {
     return true;
   }
 
@@ -140,20 +140,20 @@ function s3date(r) {
  * @returns {string} AWS authentication signature
  */
 function s3auth(r) {
-  const bucket = process.env["S3_BUCKET_NAME"];
-  const region = process.env["S3_REGION"];
+  const bucket = process.env['S3_BUCKET_NAME'];
+  const region = process.env['S3_REGION'];
   let server;
-  if (S3_STYLE === "path") {
-    server = process.env["S3_SERVER"] + ":" + process.env["S3_SERVER_PORT"];
+  if (S3_STYLE === 'path') {
+    server = process.env['S3_SERVER'] + ':' + process.env['S3_SERVER_PORT'];
   } else {
-    server = process.env["S3_SERVER"];
+    server = process.env['S3_SERVER'];
   }
-  const sigver = process.env["AWS_SIGS_VERSION"];
+  const sigver = process.env['AWS_SIGS_VERSION'];
 
   let signature;
 
   const credentials = awscred.readCredentials(r);
-  if (sigver == "2") {
+  if (sigver == '2') {
     let req = _s3ReqParamsForSigV2(r, bucket);
     signature = awssig2.signatureV2(r, req.uri, req.httpDate, credentials);
   } else {
@@ -188,14 +188,14 @@ function _s3ReqParamsForSigV2(r, bucket) {
    * string to sign. For example, if we are requesting /bucket/dir1/ from
    * nginx, then in S3 we need to request /?delimiter=/&prefix=dir1/
    * Thus, we can't put the path /dir1/ in the string to sign. */
-  let uri = _isDirectory(r.variables.uri_path) ? "/" : r.variables.uri_path;
+  let uri = _isDirectory(r.variables.uri_path) ? '/' : r.variables.uri_path;
   // To return index pages + index.html
   if (PROVIDE_INDEX_PAGE && _isDirectory(r.variables.uri_path)) {
     uri = r.variables.uri_path + INDEX_PAGE;
   }
 
   return {
-    uri: "/" + bucket + uri,
+    uri: '/' + bucket + uri,
     httpDate: s3date(r),
   };
 }
@@ -213,11 +213,11 @@ function _s3ReqParamsForSigV2(r, bucket) {
 function _s3ReqParamsForSigV4(r, bucket, server) {
   let host = server;
   if (
-    S3_STYLE === "virtual" ||
-    S3_STYLE === "default" ||
+    S3_STYLE === 'virtual' ||
+    S3_STYLE === 'default' ||
     S3_STYLE === undefined
   ) {
-    host = bucket + "." + host;
+    host = bucket + '.' + host;
   }
   const baseUri = s3BaseUri(r);
   const queryParams = _s3DirQueryParams(r.variables.uri_path, r.method);
@@ -226,7 +226,7 @@ function _s3ReqParamsForSigV4(r, bucket, server) {
     if (baseUri.length > 0) {
       uri = baseUri;
     } else {
-      uri = "/";
+      uri = '/';
     }
   } else {
     uri = s3uri(r);
@@ -247,14 +247,14 @@ function _s3ReqParamsForSigV4(r, bucket, server) {
  * @returns {string} start of the file path for the S3 object URI
  */
 function s3BaseUri(r) {
-  const bucket = process.env["S3_BUCKET_NAME"];
+  const bucket = process.env['S3_BUCKET_NAME'];
   let basePath;
 
-  if (S3_STYLE === "path") {
-    utils.debug_log(r, "Using path style uri : " + "/" + bucket);
-    basePath = "/" + bucket;
+  if (S3_STYLE === 'path') {
+    utils.debug_log(r, 'Using path style uri : ' + '/' + bucket);
+    basePath = '/' + bucket;
   } else {
-    basePath = "";
+    basePath = '';
   }
 
   return basePath;
@@ -275,7 +275,7 @@ function s3uri(r) {
   if (ALLOW_LISTING) {
     const queryParams = _s3DirQueryParams(uriPath, r.method);
     if (queryParams.length > 0) {
-      path = basePath + "?" + queryParams;
+      path = basePath + '?' + queryParams;
     } else {
       path = _escapeURIPath(basePath + uriPath);
     }
@@ -287,7 +287,7 @@ function s3uri(r) {
     path = _escapeURIPath(basePath + uriPath);
   }
 
-  utils.debug_log(r, "S3 Request URI: " + r.method + " " + path);
+  utils.debug_log(r, 'S3 Request URI: ' + r.method + ' ' + path);
   return path;
 }
 
@@ -301,25 +301,25 @@ function s3uri(r) {
  * @private
  */
 function _s3DirQueryParams(uriPath, method) {
-  if (!_isDirectory(uriPath) || method !== "GET") {
-    return "";
+  if (!_isDirectory(uriPath) || method !== 'GET') {
+    return '';
   }
 
   /* Return if static website. We don't want to list the files in the
        directory, we want to append the index page and get the fil. */
   if (PROVIDE_INDEX_PAGE) {
-    return "";
+    return '';
   }
 
-  let path = "delimiter=%2F";
+  let path = 'delimiter=%2F';
 
-  if (uriPath !== "/") {
+  if (uriPath !== '/') {
     let decodedUriPath = decodeURIComponent(uriPath);
     let without_leading_slash =
-      decodedUriPath.charAt(0) === "/"
+      decodedUriPath.charAt(0) === '/'
         ? decodedUriPath.substring(1, decodedUriPath.length)
         : decodedUriPath;
-    path += "&prefix=" + _encodeURIComponent(without_leading_slash);
+    path += '&prefix=' + _encodeURIComponent(without_leading_slash);
   }
 
   return path;
@@ -334,23 +334,23 @@ function _s3DirQueryParams(uriPath, method) {
  */
 function redirectToS3(r) {
   // This is a read-only S3 gateway, so we do not support any other methods
-  if (!(r.method === "GET" || r.method === "HEAD")) {
-    utils.debug_log(r, "Invalid method requested: " + r.method);
-    r.internalRedirect("@error405");
+  if (!(r.method === 'GET' || r.method === 'HEAD')) {
+    utils.debug_log(r, 'Invalid method requested: ' + r.method);
+    r.internalRedirect('@error405');
     return;
   }
 
   const uriPath = r.variables.uri_path;
   const isDirectoryListing = ALLOW_LISTING && _isDirectory(uriPath);
 
-  if (isDirectoryListing && r.method === "GET") {
-    r.internalRedirect("@s3Listing");
+  if (isDirectoryListing && r.method === 'GET') {
+    r.internalRedirect('@s3Listing');
   } else if (PROVIDE_INDEX_PAGE == true) {
-    r.internalRedirect("@s3");
-  } else if (!ALLOW_LISTING && !PROVIDE_INDEX_PAGE && uriPath == "/") {
-    r.internalRedirect("@error404");
+    r.internalRedirect('@s3');
+  } else if (!ALLOW_LISTING && !PROVIDE_INDEX_PAGE && uriPath == '/') {
+    r.internalRedirect('@error404');
   } else {
-    r.internalRedirect("@s3");
+    r.internalRedirect('@s3');
   }
 }
 
@@ -361,10 +361,10 @@ function trailslashControl(r) {
       !hasExtension.test(r.variables.uri_path) &&
       !_isDirectory(r.variables.uri_path)
     ) {
-      return r.internalRedirect("@trailslash");
+      return r.internalRedirect('@trailslash');
     }
   }
-  r.internalRedirect("@error404");
+  r.internalRedirect('@error404');
 }
 
 /**
@@ -383,18 +383,18 @@ function filterListResponse(r, data, flags) {
   if (FOUR_O_FOUR_ON_EMPTY_BUCKET) {
     let indexIsEmpty = utils.parseBoolean(r.variables.indexIsEmpty);
 
-    if (indexIsEmpty && data.indexOf("<Contents") >= 0) {
+    if (indexIsEmpty && data.indexOf('<Contents') >= 0) {
       r.variables.indexIsEmpty = false;
       indexIsEmpty = false;
     }
 
-    if (indexIsEmpty && data.indexOf("<CommonPrefixes") >= 0) {
+    if (indexIsEmpty && data.indexOf('<CommonPrefixes') >= 0) {
       r.variables.indexIsEmpty = false;
       indexIsEmpty = false;
     }
 
     if (flags.last && indexIsEmpty) {
-      r.sendBuffer("junk", flags);
+      r.sendBuffer('junk', flags);
     } else {
       r.sendBuffer(data, flags);
     }
@@ -427,14 +427,14 @@ function _encodeURIComponent(string) {
  */
 function _escapeURIPath(uri) {
   // Check to see if the URI path was already encoded. If so, we decode it.
-  let decodedUri = uri.indexOf("%") >= 0 ? decodeURIComponent(uri) : uri;
+  let decodedUri = uri.indexOf('%') >= 0 ? decodeURIComponent(uri) : uri;
   let components = [];
 
-  decodedUri.split("/").forEach(function (item, i) {
+  decodedUri.split('/').forEach(function (item, i) {
     components[i] = _encodeURIComponent(item);
   });
 
-  return components.join("/");
+  return components.join('/');
 }
 
 /**
@@ -455,7 +455,7 @@ function _isDirectory(path) {
     return false;
   }
 
-  return path.charAt(len - 1) === "/";
+  return path.charAt(len - 1) === '/';
 }
 
 /**
