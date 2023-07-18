@@ -112,3 +112,8 @@ s3-requests.http
 httpRequests/
 
 .bin/
+
+# NodeJS
+node_modules/
+.node_repl_history
+.npm

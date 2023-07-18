@@ -26,6 +26,6 @@ To suggest an enhancement, please create an issue on GitHub with the label `enha
 
 ### Open a Pull Request
 
-* Fork the repo, create a branch, submit a PR when your changes are tested and ready for review.
+- Fork the repo, create a branch, submit a PR when your changes are tested and ready for review.
 
 Note: if you’d like to implement a new feature, please consider creating a feature request issue first to start a discussion about the feature.
