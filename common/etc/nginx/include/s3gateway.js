@@ -34,18 +34,18 @@ _requireEnvVars('S3_STYLE');
  */
 const ALLOW_LISTING = utils.parseBoolean(process.env['ALLOW_DIRECTORY_LIST']);
 const PROVIDE_INDEX_PAGE = utils.parseBoolean(
-  process.env['PROVIDE_INDEX_PAGE'],
+  process.env['PROVIDE_INDEX_PAGE']
 );
 const APPEND_SLASH = utils.parseBoolean(
-  process.env['APPEND_SLASH_FOR_POSSIBLE_DIRECTORY'],
+  process.env['APPEND_SLASH_FOR_POSSIBLE_DIRECTORY']
 );
 const FOUR_O_FOUR_ON_EMPTY_BUCKET = utils.parseBoolean(
-  process.env['FOUR_O_FOUR_ON_EMPTY_BUCKET'],
+  process.env['FOUR_O_FOUR_ON_EMPTY_BUCKET']
 );
 const S3_STYLE = process.env['S3_STYLE'];
 
 const ADDITIONAL_HEADER_PREFIXES_TO_STRIP = utils.parseArray(
-  process.env['HEADER_PREFIXES_TO_STRIP'],
+  process.env['HEADER_PREFIXES_TO_STRIP']
 );
 
 /**
@@ -82,7 +82,7 @@ function editHeaders(r) {
       } else if (
         _isHeaderToBeStripped(
           key.toLowerCase(),
-          ADDITIONAL_HEADER_PREFIXES_TO_STRIP,
+          ADDITIONAL_HEADER_PREFIXES_TO_STRIP
         )
       ) {
         delete r.headersOut[key];
@@ -166,7 +166,7 @@ function s3auth(r) {
       req.uri,
       req.queryParams,
       req.host,
-      credentials,
+      credentials
     );
   }
 
@@ -413,7 +413,7 @@ function filterListResponse(r, data, flags) {
 function _encodeURIComponent(string) {
   return encodeURIComponent(string).replace(
     /[!*'()]/g,
-    (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
+    (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`
   );
 }
 

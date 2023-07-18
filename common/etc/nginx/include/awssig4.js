@@ -47,7 +47,7 @@ function signatureV4(
   uri,
   queryParams,
   host,
-  credentials,
+  credentials
 ) {
   const eightDigitDate = utils.getEightDigitDate(timestamp);
   const amzDatetime = utils.getAmzDatetime(timestamp, eightDigitDate);
@@ -58,7 +58,7 @@ function signatureV4(
     queryParams,
     host,
     amzDatetime,
-    credentials.sessionToken,
+    credentials.sessionToken
   );
   const signature = _buildSignatureV4(
     r,
@@ -67,7 +67,7 @@ function signatureV4(
     credentials,
     region,
     service,
-    canonicalRequest,
+    canonicalRequest
   );
   const authHeader = 'AWS4-HMAC-SHA256 Credential='.concat(
     credentials.accessKeyId,
@@ -81,7 +81,7 @@ function signatureV4(
     'SignedHeaders=',
     _signedHeaders(r, credentials.sessionToken),
     ',Signature=',
-    signature,
+    signature
   );
 
   utils.debug_log(r, 'AWS v4 Auth header: [' + authHeader + ']');
@@ -108,7 +108,7 @@ function _buildCanonicalRequest(
   queryParams,
   host,
   amzDatetime,
-  sessionToken,
+  sessionToken
 ) {
   const payloadHash = awsHeaderPayloadHash(r);
   let canonicalHeaders =
@@ -148,11 +148,11 @@ function _buildSignatureV4(
   creds,
   region,
   service,
-  canonicalRequest,
+  canonicalRequest
 ) {
   utils.debug_log(
     r,
-    'AWS v4 Auth Canonical Request: [' + canonicalRequest + ']',
+    'AWS v4 Auth Canonical Request: [' + canonicalRequest + ']'
   );
 
   const canonicalRequestHash = mod_hmac
@@ -162,7 +162,7 @@ function _buildSignatureV4(
 
   utils.debug_log(
     r,
-    'AWS v4 Auth Canonical Request Hash: [' + canonicalRequestHash + ']',
+    'AWS v4 Auth Canonical Request Hash: [' + canonicalRequestHash + ']'
   );
 
   const stringToSign = _buildStringToSign(
@@ -170,7 +170,7 @@ function _buildSignatureV4(
     eightDigitDate,
     region,
     service,
-    canonicalRequestHash,
+    canonicalRequestHash
   );
 
   utils.debug_log(r, 'AWS v4 Auth Signing String: [' + stringToSign + ']');
@@ -207,11 +207,11 @@ function _buildSignatureV4(
         creds.secretAccessKey,
         eightDigitDate,
         region,
-        service,
+        service
       );
       utils.debug_log(
         r,
-        'Writing key: ' + eightDigitDate + ':' + kSigningHash.toString('hex'),
+        'Writing key: ' + eightDigitDate + ':' + kSigningHash.toString('hex')
       );
       r.variables.signing_key_hash =
         eightDigitDate + ':' + JSON.stringify(kSigningHash);
@@ -222,13 +222,13 @@ function _buildSignatureV4(
       creds.secretAccessKey,
       eightDigitDate,
       region,
-      service,
+      service
     );
   }
 
   utils.debug_log(
     r,
-    'AWS v4 Signing Key Hash: [' + kSigningHash.toString('hex') + ']',
+    'AWS v4 Signing Key Hash: [' + kSigningHash.toString('hex') + ']'
   );
 
   const signature = mod_hmac
@@ -259,7 +259,7 @@ function _buildStringToSign(
   eightDigitDate,
   region,
   service,
-  canonicalRequestHash,
+  canonicalRequestHash
 ) {
   return (
     'AWS4-HMAC-SHA256\n' +
@@ -357,7 +357,7 @@ function _splitCachedValues(cached) {
 function awsHeaderDate(r) {
   return utils.getAmzDatetime(
     awscred.Now(),
-    utils.getEightDigitDate(awscred.Now()),
+    utils.getEightDigitDate(awscred.Now())
   );
 }
 

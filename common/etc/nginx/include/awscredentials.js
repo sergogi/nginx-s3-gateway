@@ -119,7 +119,7 @@ function _readCredentialsFromKeyValStore(r) {
   } catch (e) {
     utils.debug_log(
       r,
-      `Error parsing JSON value from r.variables.instance_credential_json: ${e}`,
+      `Error parsing JSON value from r.variables.instance_credential_json: ${e}`
     );
     return undefined;
   }
@@ -270,7 +270,7 @@ async function fetchCredentials(r) {
 
   utils.debug_log(
     r,
-    'Cached credentials are expired or not present, requesting new ones',
+    'Cached credentials are expired or not present, requesting new ones'
   );
 
   if (utils.areAllEnvVarsSet('AWS_CONTAINER_CREDENTIALS_RELATIVE_URI')) {
@@ -282,7 +282,7 @@ async function fetchCredentials(r) {
     } catch (e) {
       utils.debug_log(
         r,
-        'Could not load ECS task role credentials: ' + JSON.stringify(e),
+        'Could not load ECS task role credentials: ' + JSON.stringify(e)
       );
       r.return(500);
       return;
@@ -293,7 +293,7 @@ async function fetchCredentials(r) {
     } catch (e) {
       utils.debug_log(
         r,
-        'Could not assume role using web identity: ' + JSON.stringify(e),
+        'Could not assume role using web identity: ' + JSON.stringify(e)
       );
       r.return(500);
       return;
@@ -304,7 +304,7 @@ async function fetchCredentials(r) {
     } catch (e) {
       utils.debug_log(
         r,
-        'Could not load EC2 task role credentials: ' + JSON.stringify(e),
+        'Could not load EC2 task role credentials: ' + JSON.stringify(e)
       );
       r.return(500);
       return;

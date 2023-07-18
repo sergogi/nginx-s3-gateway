@@ -95,7 +95,7 @@ function _runSignatureV4(r) {
     req.queryParams,
     req.host,
     amzDatetime,
-    creds.sessionToken,
+    creds.sessionToken
   );
 
   var expected =
@@ -107,7 +107,7 @@ function _runSignatureV4(r) {
     creds,
     region,
     service,
-    canonicalRequest,
+    canonicalRequest
   );
 
   if (signature !== expected) {

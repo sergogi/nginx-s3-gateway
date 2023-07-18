@@ -127,7 +127,7 @@ function getAmzDatetime(timestamp, eightDigitDate) {
     padWithLeadingZeros(hours, 2),
     padWithLeadingZeros(minutes, 2),
     padWithLeadingZeros(seconds, 2),
-    'Z',
+    'Z'
   );
 }
 
@@ -146,7 +146,7 @@ function getEightDigitDate(timestamp) {
   return ''.concat(
     padWithLeadingZeros(year, 4),
     padWithLeadingZeros(month, 2),
-    padWithLeadingZeros(day, 2),
+    padWithLeadingZeros(day, 2)
   );
 }
 
