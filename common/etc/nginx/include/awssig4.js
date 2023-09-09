@@ -23,7 +23,7 @@ const mod_hmac = require('crypto');
  * Constant defining the headers being signed.
  * @type {string}
  */
-const DEFAULT_SIGNED_HEADERS = 'host;x-amz-date';
+const DEFAULT_SIGNED_HEADERS = 'host;x-amz-content-sha256;x-amz-date';
 
 /**
  * Create HTTP Authorization header for authenticating with an AWS compatible
@@ -47,8 +47,8 @@ function signatureV4(r, timestamp, region, service, uri, queryParams, host, cred
     const signature = _buildSignatureV4(r, amzDatetime, eightDigitDate,
         credentials, region, service, canonicalRequest);
     const authHeader = 'AWS4-HMAC-SHA256 Credential='
-        .concat(credentials.accessKeyId, '/', eightDigitDate, '/', region, '/', service, '/aws4_request,',
-            'SignedHeaders=', _signedHeaders(r, credentials.sessionToken), ',Signature=', signature);
+        .concat(credentials.accessKeyId, '/', eightDigitDate, '/', region, '/', service, '/aws4_request, ',
+            'SignedHeaders=', _signedHeaders(r, credentials.sessionToken), ', Signature=', signature);
 
     utils.debug_log(r, 'AWS v4 Auth header: [' + authHeader + ']');
 
@@ -69,8 +69,12 @@ function signatureV4(r, timestamp, region, service, uri, queryParams, host, cred
  */
 function _buildCanonicalRequest(r,
     method, uri, queryParams, host, amzDatetime, sessionToken) {
+
+    // remove port from host, needless for canonical headers
+    const hostNoPort = host.split(':')[0];
     const payloadHash = awsHeaderPayloadHash(r);
-    let canonicalHeaders = 'host:' + host + '\n' +
+    let canonicalHeaders = 'host:' + hostNoPort + '\n' +
+                           'x-amz-content-sha256:' + payloadHash + '\n' + 
                            'x-amz-date:' + amzDatetime + '\n';
 
     if (sessionToken && sessionToken.length > 0) {
