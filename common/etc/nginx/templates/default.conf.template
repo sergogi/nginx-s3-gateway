@@ -170,6 +170,10 @@ server {
         proxy_http_version 1.1;
         proxy_set_header Connection '';
 
+        # Disable cache for directory listing page
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+
         # We strip off all of the AWS specific headers from the server so that
         # there is nothing identifying the object as having originated in an
         # object store.
@@ -230,6 +234,10 @@ server {
         # Use keep alive connections in order to improve performance
         proxy_http_version 1.1;
         proxy_set_header Connection '';
+
+        # Disable cache for directory listing page
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
 
         # We strip off all of the AWS specific headers from the server so that
         # there is nothing identifying the object as having originated in an
@@ -293,6 +301,10 @@ server {
         # Use keep alive connections in order to improve performance
         proxy_http_version 1.1;
         proxy_set_header Connection '';
+
+        # Disable cache for directory listing page
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
 
         # We strip off all of the AWS specific headers from the server so that
         # there is nothing identifying the object as having originated in an
